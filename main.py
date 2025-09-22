@@ -3,8 +3,8 @@ import json
 import mlflow
 import tempfile
 import os
-import wandb
 import hydra
+from hydra.utils import to_absolute_path
 from omegaconf import DictConfig
 
 _steps = [
@@ -21,7 +21,7 @@ _steps = [
 
 
 # This automatically reads in the configuration
-@hydra.main(config_path='.', config_name='config')
+@hydra.main(config_path='.', config_name='config', version_base=None)
 def go(config: DictConfig):
 
     # Setup the wandb experiment. All runs will be grouped under this name
@@ -31,7 +31,6 @@ def go(config: DictConfig):
     # Steps to execute
     steps_par = config['main']['steps']
     active_steps = steps_par.split(",") if steps_par != "all" else _steps
-
     # Move to a temporary directory
     with tempfile.TemporaryDirectory() as tmp_dir:
 
@@ -52,12 +51,12 @@ def go(config: DictConfig):
 
         if "basic_cleaning" in active_steps:
             _ = mlflow.run(
-                "src/basic_cleaning",
+                to_absolute_path("src/basic_cleaning"),
                 "main",
                 parameters={
                     "input_artifact": "sample.csv:latest",
                     "output_artifact": "clean_sample.csv",
-                    "output_type": "clean_data",
+                    "output_type": "clean_sample",
                     "output_description": "Data Cleaned: Outliers were removed, NaN handled, types converted",
                     "min_price": config["etl"]["min_price"],
                     "max_price": config["etl"]["max_price"],
@@ -66,10 +65,14 @@ def go(config: DictConfig):
 
         if "data_check" in active_steps:
             _ = mlflow.run(
-                "src/data_check",
+                to_absolute_path("src/data_check"),
                 "main",
                 parameters={
                     "csv": "clean_sample.csv:latest",
+                    "ref": "sample.csv:latest",
+                    "kl_threshold": config["data_check"]["kl_threshold"],
+                    "min_price": config["etl"]["min_price"],
+                    "max_price": config["etl"]["max_price"],
                 }
             )
 
@@ -96,7 +99,7 @@ def go(config: DictConfig):
             # NOTE: use the rf_config we just created as the rf_config parameter for the train_random_forest
             # step
             _ = mlflow.run(
-                "src/train_random_forest",
+                to_absolute_path("src/train_random_forest"),
                 "main",
                 parameters={
                     "trainval_artifact": "trainval_data.csv:latest",
