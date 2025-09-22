@@ -41,7 +41,13 @@ logger = logging.getLogger()
 
 def go(args):
 
-    run = wandb.init(job_type="train_random_forest")
+    ENTITY  = os.environ.get("WANDB_ENTITY")
+    PROJECT = os.environ.get("WANDB_PROJECT", "nyc_airbnb")
+
+    run = wandb.init(entity=ENTITY, project=PROJECT, job_type="train_random_forest")
+    logger.info(f"W&B entity={ENTITY} project={PROJECT} mode={wandb.run.mode}")
+    logger.info(f"W&B run URL: {run.url}")
+
     run.config.update(args)
 
     # Get the Random Forest configuration and update W&B
@@ -107,7 +113,7 @@ def go(args):
     artifact = wandb.Artifact(
         args.output_artifact,
         type = 'model_export',
-        description = 'Trained ranfom forest artifact',
+        description = 'Trained random forest artifact',
         metadata = rf_config
     )
     artifact.add_dir('random_forest_dir')

@@ -2,6 +2,7 @@
 """
 This step takes the best model, tagged with the "prod" tag, and tests it against the test dataset
 """
+import os
 import argparse
 import logging
 import wandb
@@ -18,7 +19,9 @@ logger = logging.getLogger()
 
 def go(args):
 
-    run = wandb.init(job_type="test_model")
+    run = wandb.init(entity=os.getenv("WANDB_ENTITY"),
+                 project=os.getenv("WANDB_PROJECT"),
+                 job_type="test_regression_model")
     run.config.update(args)
 
     logger.info("Downloading artifacts")
@@ -44,6 +47,7 @@ def go(args):
 
     logger.info(f"Score: {r_squared}")
     logger.info(f"MAE: {mae}")
+    wandb.log({"mae": mae, "r2": r_squared})
 
     # Log MAE and r2
     run.summary['r2'] = r_squared
@@ -64,7 +68,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--test_dataset",
         type=str, 
-        help="Test dataset",
+        help="Test artifact",
         required=True
     )
 
