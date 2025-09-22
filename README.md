@@ -6,6 +6,32 @@ to be retrained with the same cadence, necessitating an end-to-end pipeline that
 
 In this project you will build such a pipeline.
 
+## Final Results
+
+### Project Links
+
+- **GitHub Repository (this repo):**
+  https://github.com/billwhert/Project-Build-an-ML-Pipeline-Starter
+  
+- **W&B Project (public):**
+  https://wandb.ai/wwhite29-skip/nyc_airbnb?nw=nwuserwwhite29
+  
+- **Final W&B Report:**
+  https://wandb.ai/wwhite29-skip/nyc_airbnb/reports/New-York-City-Airbnb-ML-Pipeline-Report--VmlldzoxNDQ4Njg5OQ
+
+---
+Results of Validation from Training:
+R_Squared: Approximately .55
+MAE: Approximately 34.13
+
+Results from Testing:
+R_Squared: Approximately .56
+MAE: Approximately 33.85
+
+
+The model provides explanation for around 56% of variance in the rental prices. The average error is approximately $34 per night. The performance was consistent between the validation and test datasets, which shows low overfitting. This pipeline should be production-ready and able to extend to other datasets with few changes.
+
+
 ## Table of contents
 
 - [Preliminary steps](#preliminary-steps)
